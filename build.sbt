@@ -1,4 +1,6 @@
-ThisBuild / scalaVersion := "3.1.1"
+ThisBuild / scalaVersion                        := "3.1.1"
+ThisBuild / versionScheme                       := Some("early-semver")
+ThisBuild / githubWorkflowPublishTargetBranches := Seq()
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -14,7 +16,8 @@ val commonSettings = Seq(
 lazy val root = project
   .in(file("."))
   .settings(
-    publish := {}
+    publish        := {},
+    publish / skip := true,
   )
   .aggregate(server, client, shared)
 
