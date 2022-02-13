@@ -22,8 +22,8 @@ object Main extends IOApp.Simple {
         val exec = ServerSideExecutor.instance[IO]
 
         val endpoints: List[ServerEndpoint[Any, IO]] = List(
-          protocol.build.serverLogic(exec.build(_).map(Right.apply)),
-          protocol.run.serverLogic(exec.run(_).map(Right.apply)),
+          protocol.build.serverLogicSuccess(exec.build),
+          protocol.run.serverLogicSuccess(exec.run),
         )
 
         Http4sServerInterpreter[IO]()
