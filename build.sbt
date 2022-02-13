@@ -36,6 +36,7 @@ lazy val server = project
       "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "0.20.0-M9",
       "org.http4s"                  %% "http4s-dsl"          % "0.23.9", // 1.0.0-M31
       "org.http4s"                  %% "http4s-ember-server" % "0.23.9",
+      "ch.qos.logback"               % "logback-classic"     % "1.2.10",
     ),
   )
   .dependsOn(shared)

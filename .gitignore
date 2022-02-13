@@ -4,6 +4,8 @@
 **/target/
 **/DS_Store
 
+.idea
+
 .vscode
 .bloop
 .bsp
