@@ -21,8 +21,23 @@ lazy val root = project
   )
   .aggregate(server, client, shared)
 
-lazy val shared = project.settings(commonSettings)
+lazy val shared = project.settings(
+  commonSettings,
+  libraryDependencies ++= Seq(
+    "com.softwaremill.sttp.tapir" %% "tapir-core"       % "0.20.0-M9",
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "0.20.0-M9",
+  ),
+)
 
-lazy val server = project.settings(commonSettings).dependsOn(shared)
+lazy val server = project
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "0.20.0-M9",
+      "org.http4s"                  %% "http4s-dsl"          % "0.23.9", // 1.0.0-M31
+      "org.http4s"                  %% "http4s-ember-server" % "0.23.9",
+    ),
+  )
+  .dependsOn(shared)
 
 lazy val client = project.settings(commonSettings).dependsOn(shared)
