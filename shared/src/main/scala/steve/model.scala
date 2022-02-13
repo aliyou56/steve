@@ -27,6 +27,6 @@ object Build {
   val empty: Build = Build(base = Build.Base.EmptyImage, commands = Nil)
 }
 
-final case class Hash(value: Array[Byte]) derives Codec.AsObject
+final case class Hash(value: Vector[Byte]) derives Codec.AsObject
 
 final case class SystemState(all: Map[String, String]) derives Codec.AsObject

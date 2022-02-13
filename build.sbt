@@ -4,12 +4,21 @@ ThisBuild / githubWorkflowPublishTargetBranches := Seq()
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+val Versions =
+  new {
+    val catsEffect = "3.3.5"
+    val tapir      = "0.20.0-M9"
+    val http4s     = "0.23.9"
+    val munit      = "1.0.7"
+    val logback    = "1.2.10"
+  }
+
 val commonSettings = Seq(
   // scalacOptions -= "-Werror",
   libraryDependencies ++= Seq(
-    "org.typelevel" %% "cats-effect" % "3.3.5",
+    "org.typelevel" %% "cats-effect" % Versions.catsEffect,
     // "org.typelevel" %% "cats-mtl" % "1.2.1",
-    "org.typelevel" %% "munit-cats-effect-3" % "1.0.7",
+    "org.typelevel" %% "munit-cats-effect-3" % Versions.munit,
   )
 )
 
@@ -24,8 +33,8 @@ lazy val root = project
 lazy val shared = project.settings(
   commonSettings,
   libraryDependencies ++= Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-core"       % "0.20.0-M9",
-    "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "0.20.0-M9",
+    "com.softwaremill.sttp.tapir" %% "tapir-core"       % Versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % Versions.tapir,
   ),
 )
 
@@ -33,12 +42,21 @@ lazy val server = project
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
-      "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "0.20.0-M9",
-      "org.http4s"                  %% "http4s-dsl"          % "0.23.9", // 1.0.0-M31
-      "org.http4s"                  %% "http4s-ember-server" % "0.23.9",
-      "ch.qos.logback"               % "logback-classic"     % "1.2.10",
+      "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % Versions.tapir,
+      "org.http4s"                  %% "http4s-dsl"          % Versions.http4s, // 1.0.0-M31
+      "org.http4s"                  %% "http4s-ember-server" % Versions.http4s,
+      "ch.qos.logback"               % "logback-classic"     % Versions.logback,
     ),
   )
   .dependsOn(shared)
 
-lazy val client = project.settings(commonSettings).dependsOn(shared)
+lazy val client = project
+  .settings(
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "com.softwaremill.sttp.tapir" %% "tapir-http4s-client" % Versions.tapir,
+      "org.http4s"                  %% "http4s-ember-client" % Versions.http4s,
+      "ch.qos.logback"               % "logback-classic"     % Versions.logback,
+    ),
+  )
+  .dependsOn(shared)
