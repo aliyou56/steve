@@ -12,3 +12,8 @@
 - Setup Scala Steward
 - Initialize client
 - Communication with server
+
+## Episode 3
+
+- Build client with native image
+- Add logback to client
