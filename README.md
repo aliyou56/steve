@@ -17,3 +17,8 @@
 
 - Build client with native image
 - Add logback to client
+
+## Episode 4
+
+- Client/server compatibility testing
+- Logging, error handling

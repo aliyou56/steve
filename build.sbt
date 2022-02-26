@@ -19,6 +19,7 @@ val commonSettings = Seq(
     "org.typelevel" %% "cats-effect" % Versions.catsEffect,
     // "org.typelevel" %% "cats-mtl" % "1.2.1",
     "org.typelevel" %% "munit-cats-effect-3" % Versions.munit % Test,
+//    compilerPlugin("org.polyvariant" % "better-tostring" % "0.3.13" cross CrossVersion.full),
   )
 )
 
@@ -41,6 +42,11 @@ lazy val root = project
     publish / skip := true,
   )
   .aggregate(server, client, shared)
+
+lazy val e2e = project
+  .in(file("e2e"))
+  .settings(commonSettings)
+  .dependsOn(server, client)
 
 lazy val shared = project.settings(
   commonSettings,
