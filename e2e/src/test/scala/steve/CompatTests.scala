@@ -20,6 +20,15 @@ class CompatTests extends munit.CatsEffectSuite {
   val goodBuildResult: Hash         = Hash(Vector.empty)
   val unexpectedFailingBuild: Build = Build(Build.Base.EmptyImage, List(Build.Command.Delete("a")))
 
+  val unknownHash: Hash = Hash(Vector(1))
+
+  val unknownBaseBuild: Build = Build(
+    Build.Base.ImageReference(unknownHash),
+    Nil,
+  )
+
+  val unknownBaseError: Throwable = Build.Error.UnknownBase(unknownHash)
+
   val goodHash: Hash              = Hash(Vector.empty)
   val goodRunResult: SystemState  = SystemState(Map.empty)
   val unexpectedFailingHash: Hash = Hash(Vector(3))
@@ -27,6 +36,7 @@ class CompatTests extends munit.CatsEffectSuite {
   val exec: Executor[IO] = testExecutor(
     Map(
       goodBuild              -> goodBuildResult.asRight,
+      unknownBaseBuild       -> unknownBaseError.asLeft,
       unexpectedFailingBuild -> new Throwable("build internal error").asLeft,
     ),
     Map(
@@ -49,6 +59,13 @@ class CompatTests extends munit.CatsEffectSuite {
     assertIO(
       client.build(goodBuild),
       goodBuildResult,
+    )
+  }
+
+  test("Build image - unknown base") {
+    assertIO(
+      client.build(unknownBaseBuild).attempt,
+      unknownBaseError.asLeft,
     )
   }
 

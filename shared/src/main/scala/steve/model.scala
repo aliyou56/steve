@@ -27,6 +27,13 @@ object Build {
   }
 
   val empty: Build = Build(base = Build.Base.EmptyImage, commands = Nil)
+
+  sealed trait Error extends Exception with Product with Serializable derives Codec.AsObject, Schema
+
+  object Error {
+    final case class UnknownBase(hash: Hash) extends Error
+  }
+
 }
 
 final case class Hash(value: Vector[Byte]) derives Codec.AsObject, Schema
