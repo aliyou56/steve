@@ -1,9 +1,9 @@
 package steve
 
 import cats.effect.IO
-import sttp.tapir.client.http4s.Http4sClientInterpreter
-import org.http4s.client.Client
 import cats.implicits.*
+import org.http4s.client.Client
+import sttp.tapir.client.http4s.Http4sClientInterpreter
 
 class CompatTests extends munit.CatsEffectSuite {
 
@@ -16,14 +16,23 @@ class CompatTests extends munit.CatsEffectSuite {
       override def run(hash: Hash): IO[SystemState] = runImpl(hash).liftTo[IO]
     }
 
-  val goodBuild: Build           = Build.empty
-  val goodBuildResult: Hash      = Hash(Vector.empty)
-  val goodHash: Hash             = Hash(Vector.empty)
-  val goodRunResult: SystemState = SystemState(Map.empty)
+  val goodBuild: Build              = Build.empty
+  val goodBuildResult: Hash         = Hash(Vector.empty)
+  val unexpectedFailingBuild: Build = Build(Build.Base.EmptyImage, List(Build.Command.Delete("a")))
+
+  val goodHash: Hash              = Hash(Vector.empty)
+  val goodRunResult: SystemState  = SystemState(Map.empty)
+  val unexpectedFailingHash: Hash = Hash(Vector(3))
 
   val exec: Executor[IO] = testExecutor(
-    Map(goodBuild -> goodBuildResult.asRight),
-    Map(goodHash  -> goodRunResult.asRight),
+    Map(
+      goodBuild              -> goodBuildResult.asRight,
+      unexpectedFailingBuild -> new Throwable("build internal error").asLeft,
+    ),
+    Map(
+      goodHash              -> goodRunResult.asRight,
+      unexpectedFailingHash -> new Throwable("hash internal error").asLeft,
+    ),
   )
 
   given Http4sClientInterpreter[IO] = Http4sClientInterpreter[IO]()
@@ -36,17 +45,32 @@ class CompatTests extends munit.CatsEffectSuite {
     )
   )
 
-  test("Build image successfully") {
+  test("Build image - success") {
     assertIO(
-      client.build(Build.empty),
+      client.build(goodBuild),
       goodBuildResult,
     )
   }
 
-  test("Run image successfully") {
+  test("Build image - unexpected error") {
+    assertIO(
+      client.build(unexpectedFailingBuild).attempt,
+      GenericServerError("server error").asLeft,
+    )
+  }
+
+  test("Run image - success") {
     assertIO(
       client.run(goodHash),
       goodRunResult,
     )
   }
+
+  test("Run image - unexpected error") {
+    assertIO(
+      client.run(unexpectedFailingHash).attempt,
+      GenericServerError("server error").asLeft,
+    )
+  }
+
 }
