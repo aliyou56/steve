@@ -3,8 +3,8 @@ package steve
 import cats.effect.MonadCancelThrow
 import cats.implicits.*
 import org.http4s.Status
-import org.http4s.Uri
 import org.http4s.client.Client
+import org.http4s.implicits.*
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.http4s.Http4sClientInterpreter
 
@@ -22,10 +22,7 @@ object ClientSideExecutor {
         input: I,
       ): F[O] = {
         val (req, handler) = summon[Http4sClientInterpreter[F]]
-          .toRequestThrowDecodeFailures(
-            endpoint,
-            Some(Uri.unsafeFromString("http://localhost:8080")),
-          )
+          .toRequestThrowDecodeFailures(endpoint, Some(uri"http://localhost:8080"))
           .apply(input)
 
         client.run(req).use {
