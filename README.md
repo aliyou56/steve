@@ -22,3 +22,8 @@
 
 - Client/server compatibility testing
 - Logging, error handling
+
+## Episode 5
+
+- Implement real business logic
+- Logging unification
