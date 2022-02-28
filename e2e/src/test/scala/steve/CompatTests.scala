@@ -7,15 +7,6 @@ import sttp.tapir.client.http4s.Http4sClientInterpreter
 
 class CompatTests extends munit.CatsEffectSuite {
 
-  def testExecutor(
-    buildImpl: Map[Build, Either[Throwable, Hash]],
-    runImpl: Map[Hash, Either[Throwable, SystemState]],
-  ): Executor[IO] =
-    new Executor[IO] {
-      override def build(build: Build): IO[Hash]    = buildImpl(build).liftTo[IO]
-      override def run(hash: Hash): IO[SystemState] = runImpl(hash).liftTo[IO]
-    }
-
   val goodBuild: Build              = Build.empty
   val goodBuildResult: Hash         = Hash(Vector.empty)
   val unexpectedFailingBuild: Build = Build(Build.Base.EmptyImage, List(Build.Command.Delete("a")))
@@ -33,7 +24,7 @@ class CompatTests extends munit.CatsEffectSuite {
   val goodRunResult: SystemState  = SystemState(Map.empty)
   val unexpectedFailingHash: Hash = Hash(Vector(3))
 
-  val exec: Executor[IO] = testExecutor(
+  val exec: Executor[IO] = TestExecutor.instance(
     Map(
       goodBuild              -> goodBuildResult.asRight,
       unknownBaseBuild       -> unknownBaseError.asLeft,
