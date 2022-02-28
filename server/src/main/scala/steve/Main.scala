@@ -2,7 +2,6 @@ package steve
 
 import com.comcast.ip4s.host
 import com.comcast.ip4s.port
-
 import cats.effect.IO
 import cats.effect.IOApp
 import org.http4s.ember.server.EmberServerBuilder
@@ -18,17 +17,7 @@ object Main extends IOApp.Simple {
       .withHost(host"0.0.0.0")
       .withPort(port"8080")
       .withHttpApp {
-
-        val exec = ServerSideExecutor.instance[IO]
-
-        val endpoints: List[ServerEndpoint[Any, IO]] = List(
-          protocol.build.serverLogicSuccess(exec.build),
-          protocol.run.serverLogicSuccess(exec.run),
-        )
-
-        Http4sServerInterpreter[IO]()
-          .toRoutes(endpoints)
-          .orNotFound
+        Routing.instance[IO](ServerSideExecutor.instance[IO])
       }
       .build
       .useForever

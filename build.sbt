@@ -19,6 +19,7 @@ val commonSettings = Seq(
     "org.typelevel" %% "cats-effect" % Versions.catsEffect,
     // "org.typelevel" %% "cats-mtl" % "1.2.1",
     "org.typelevel" %% "munit-cats-effect-3" % Versions.munit % Test,
+//    compilerPlugin("org.polyvariant" % "better-tostring" % "0.3.13" cross CrossVersion.full),
   )
 )
 
@@ -34,13 +35,20 @@ val nativeImageSettings = Seq(
   nativeImageReady := { () => () }, // remove the alert message (macOs only)
 )
 
+def full(p: Project) = p % "test->test;compile->compile"
+
 lazy val root = project
   .in(file("."))
   .settings(
     publish        := {},
     publish / skip := true,
   )
-  .aggregate(server, client, shared)
+  .aggregate(server, client, shared, e2e)
+
+lazy val e2e = project
+  .in(file("e2e"))
+  .settings(commonSettings)
+  .dependsOn(full(server), full(client))
 
 lazy val shared = project.settings(
   commonSettings,
@@ -58,9 +66,11 @@ lazy val server = project
       "org.http4s"                  %% "http4s-dsl"          % Versions.http4s,
       "org.http4s"                  %% "http4s-ember-server" % Versions.http4s,
       "ch.qos.logback"               % "logback-classic"     % Versions.logback,
+      "org.http4s"                  %% "http4s-circe"        % Versions.http4s % Test,
+      "org.http4s"                  %% "http4s-client"       % Versions.http4s % Test,
     ),
   )
-  .dependsOn(shared)
+  .dependsOn(full(shared))
 
 lazy val client = project
   .settings(
@@ -73,4 +83,4 @@ lazy val client = project
     nativeImageSettings,
   )
   .enablePlugins(NativeImagePlugin)
-  .dependsOn(shared)
+  .dependsOn(full(shared))

@@ -2,6 +2,7 @@ package steve
 
 import cats.effect.MonadCancelThrow
 import cats.implicits.*
+import org.http4s.Status
 import org.http4s.Uri
 import org.http4s.client.Client
 import sttp.tapir.PublicEndpoint
@@ -9,7 +10,11 @@ import sttp.tapir.client.http4s.Http4sClientInterpreter
 
 object ClientSideExecutor {
 
-  def instance[F[_]: Http4sClientInterpreter: MonadCancelThrow](client: Client[F]): Executor[F] =
+  def instance[F[_]: Http4sClientInterpreter: MonadCancelThrow](
+    client: Client[F]
+  )(
+    using fs2.Compiler[F, F]
+  ): Executor[F] =
     new Executor[F] {
 
       private def run[I, E <: Throwable, O](
@@ -23,7 +28,15 @@ object ClientSideExecutor {
           )
           .apply(input)
 
-        client.run(req).use(handler).rethrow
+        client.run(req).use {
+          case r if r.status == Status.InternalServerError =>
+            r.bodyText
+              .compile
+              .string
+              .flatMap(io.circe.parser.decode[GenericServerError](_).liftTo[F])
+              .flatMap(_.raiseError[F, O])
+          case r => handler(r).rethrow
+        }
       }
 
       override def build(build: Build): F[Hash] = run(protocol.build, build)

@@ -5,12 +5,13 @@ import cats.effect.IOApp
 import cats.implicits.*
 import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.client.Client
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import sttp.tapir.client.http4s.Http4sClientInterpreter
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 object Main extends IOApp.Simple {
 
-  val logger = Slf4jLogger.getLogger[IO]
+  val logger: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
   override def run: IO[Unit] = EmberClientBuilder
     .default[IO]
