@@ -6,11 +6,13 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 val Versions =
   new {
-    val catsEffect = "3.3.5"
-    val tapir      = "0.20.0-M9"
-    val http4s     = "0.23.9" // 1.0.0-M31
-    val munit      = "1.0.7"
-    val logback    = "1.2.10"
+    val catsEffect = "3.3.8"
+    val tapir      = "0.20.1"
+    val http4s     = "0.23.11" // 1.0.0-M31
+    val munit      = "1.0.0-M1"
+    val munitCats  = "1.0.7"
+    val logback    = "1.2.11"
+    val monocle    = "3.1.0"
   }
 
 val commonSettings = Seq(
@@ -18,9 +20,10 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %% "cats-effect" % Versions.catsEffect,
     // "org.typelevel" %% "cats-mtl" % "1.2.1",
-    "org.typelevel" %% "munit-cats-effect-3" % Versions.munit % Test,
+    "org.typelevel" %% "munit-cats-effect-3" % Versions.munitCats % Test,
 //    compilerPlugin("org.polyvariant" % "better-tostring" % "0.3.13" cross CrossVersion.full),
-  )
+  ),
+  testFrameworks += new TestFramework("munit.Framework"),
 )
 
 val nativeImageSettings = Seq(
@@ -66,8 +69,10 @@ lazy val server = project
       "org.http4s"                  %% "http4s-dsl"          % Versions.http4s,
       "org.http4s"                  %% "http4s-ember-server" % Versions.http4s,
       "ch.qos.logback"               % "logback-classic"     % Versions.logback,
+      "dev.optics"                  %% "monocle-core"        % Versions.monocle,
       "org.http4s"                  %% "http4s-circe"        % Versions.http4s % Test,
       "org.http4s"                  %% "http4s-client"       % Versions.http4s % Test,
+      "org.scalameta"               %% "munit-scalacheck"    % Versions.munit  % Test,
     ),
   )
   .dependsOn(full(shared))
